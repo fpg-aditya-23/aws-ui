@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWS Downloader</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <header class="header-card">
+            <div>
+                <div id="status-card" class="status-card">{{ state.status_card }}</div>
+                <button id="login-btn" class="primary-button">Connect AWS</button>
+            </div>
+            <div class="date-row">
+                <label for="date-input">Date:</label>
+                <input id="date-input" type="date" value="{{ today }}" />
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <section class="panel panel-left">
+                <div class="panel-header">
+                    <h2>Locations</h2>
+                    <button id="bulk-download-btn" class="primary-button">Download Selected</button>
+                </div>
+                <div class="locations-container">
+                    {% for pms, locations in pms_locations.items() %}
+                    <div class="group-card">
+                        <label class="group-label">
+                            <input type="checkbox" class="group-checkbox" data-group="{{ pms }}" />
+                            <span>{{ pms }}</span>
+                        </label>
+                        <div class="group-locations">
+                            {% for loc in locations %}
+                            <div class="location-row" data-group="{{ pms }}">
+                                <label class="location-checkbox-label">
+                                    <input type="checkbox" class="loc-checkbox" data-loc="{{ loc }}" />
+                                    <span>{{ loc }}</span>
+                                </label>
+                                <button class="download-btn" data-loc="{{ loc }}">Download</button>
+                                <input class="path-input" type="text" id="path-{{ loc }}" value="{{ config.get(loc, '') }}" placeholder="Enter path" />
+                                <button class="save-path-btn" data-loc="{{ loc }}">Save Path</button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="panel panel-right">
+                <div class="status-panel">
+                    <div class="status-label" id="status-label">{{ state.status_label }}</div>
+                    <div class="summary-grid">
+                        <div class="summary-card">Total: <span id="total-tasks">{{ state.total_tasks }}</span></div>
+                        <div class="summary-card">Completed: <span id="completed-tasks">{{ state.completed_tasks }}</span></div>
+                        <div class="summary-card">Active: <span id="active-tasks">{{ state.active_downloads }}</span></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer-card">
+            <h3>Logs</h3>
+            <textarea id="logs" readonly></textarea>
+        </footer>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
