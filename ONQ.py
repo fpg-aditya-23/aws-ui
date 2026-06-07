@@ -3,12 +3,17 @@ import os
 from datetime import datetime, timedelta
 
 
-# 🔥 GLOBAL SAFE SESSION (IMPORTANT FIX FOR SSO CRASH)
-SESSION = boto3.Session(profile_name="fpg-proj-ing-prod1")
-S3 = SESSION.client("s3")
+def get_s3_client():
+    profile_name = os.getenv("AWS_PROFILE") or os.getenv("AWS_DEFAULT_PROFILE")
+    if profile_name:
+        session = boto3.Session(profile_name=profile_name)
+    else:
+        session = boto3.Session()
+    return session.client("s3")
 
 
 def download_onq(location, date_input, base_path, logger):
+    s3 = get_s3_client()
 
     BUCKET_NAME = "ing-sftp-hilton"
     PREFIX = "SFTP/"
@@ -39,7 +44,7 @@ def download_onq(location, date_input, base_path, logger):
     logger(f"📂 ONQ Folder: {BASE_ONQ}")
     logger(f"⬇ Starting {location}")
 
-    paginator = S3.get_paginator("list_objects_v2")
+    paginator = s3.get_paginator("list_objects_v2")
 
     download_count = 0
 
@@ -69,7 +74,7 @@ def download_onq(location, date_input, base_path, logger):
 
                 local_path = os.path.join(location_folder, file_name)
 
-                S3.download_file(BUCKET_NAME, key, local_path)
+                s3.download_file(BUCKET_NAME, key, local_path)
 
                 logger(f"✅ {location} → {file_name}")
                 download_count += 1
